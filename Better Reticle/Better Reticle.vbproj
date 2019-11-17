@@ -87,6 +87,7 @@
     <Compile Include="Configure.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Hotkeys.vb" />
     <Compile Include="ImageFilters.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
@@ -136,11 +137,18 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Debug\Better Reticle.exe" />
+    <Content Include="bin\Debug\Data\Reticles\Bar.png" />
     <Content Include="bin\Debug\Data\Reticles\Chevron.png" />
+    <Content Include="bin\Debug\Data\Reticles\Circle Bar.png" />
+    <Content Include="bin\Debug\Data\Reticles\Circle Cross.png" />
+    <Content Include="bin\Debug\Data\Reticles\Circle Dot Cross.png" />
+    <Content Include="bin\Debug\Data\Reticles\Circle Dot.png" />
     <Content Include="bin\Debug\Data\Reticles\Circle.png" />
     <Content Include="bin\Debug\Data\Reticles\Cross.png" />
+    <Content Include="bin\Debug\Data\Reticles\Dot Bar.png" />
     <Content Include="bin\Debug\Data\Reticles\Dot Box.png" />
     <Content Include="bin\Debug\Data\Reticles\Dot Cross.png" />
+    <Content Include="bin\Debug\Data\Reticles\Dot Post.png" />
     <Content Include="bin\Debug\Data\Reticles\Dot Tri-Box.png" />
     <Content Include="bin\Debug\Data\Reticles\Dot.png" />
     <Content Include="bin\Debug\Data\Reticles\Double Chevron.png" />
@@ -148,11 +156,14 @@
     <Content Include="bin\Debug\Data\Reticles\Large Cross.png" />
     <Content Include="bin\Debug\Data\Reticles\Mill Dot.png" />
     <Content Include="bin\Debug\Data\Reticles\Multi Dot.png" />
+    <Content Include="bin\Debug\Data\Reticles\Open Cross.png" />
     <Content Include="bin\Debug\Data\Reticles\Post.png" />
     <Content Include="bin\Debug\Data\Reticles\Resources\Base.png" />
     <Content Include="bin\Debug\Data\Reticles\Resources\Help.txt" />
     <Content Include="bin\Debug\Data\Reticles\Small Cross.png" />
+    <Content Include="bin\Debug\Data\Reticles\Small Open Cross.png" />
     <Content Include="bin\Debug\Data\Reticles\Triple Chevron.png" />
+    <Content Include="bin\Debug\Data\Reticles\Warframe.png" />
     <Content Include="Reticle.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />

@@ -35,6 +35,15 @@ Partial Class Configure
         Me.TrayMenuConfigure = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.TrayMenuExit = New System.Windows.Forms.ToolStripMenuItem()
+        Me.CheckBox_startWithWindows = New System.Windows.Forms.CheckBox()
+        Me.GroupBox2 = New System.Windows.Forms.GroupBox()
+        Me.ComboBox_Key = New System.Windows.Forms.ComboBox()
+        Me.ComboBox_Modifier = New System.Windows.Forms.ComboBox()
+        Me.Label21 = New System.Windows.Forms.Label()
+        Me.Label19 = New System.Windows.Forms.Label()
+        Me.Label7 = New System.Windows.Forms.Label()
+        Me.CheckBox_startHidden = New System.Windows.Forms.CheckBox()
+        Me.Timer_Restart = New System.Windows.Forms.Timer(Me.components)
         Me.GroupBox1.SuspendLayout()
         CType(Me.Alpha, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.Red, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -42,6 +51,7 @@ Partial Class Configure
         CType(Me.Green, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ReticlePreview, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TrayMenu.SuspendLayout()
+        Me.GroupBox2.SuspendLayout()
         Me.SuspendLayout()
         '
         'Label4
@@ -182,7 +192,7 @@ Partial Class Configure
         'Cancel
         '
         Me.Cancel.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.Cancel.Location = New System.Drawing.Point(248, 148)
+        Me.Cancel.Location = New System.Drawing.Point(248, 261)
         Me.Cancel.Name = "Cancel"
         Me.Cancel.Size = New System.Drawing.Size(75, 23)
         Me.Cancel.TabIndex = 14
@@ -192,7 +202,7 @@ Partial Class Configure
         'Save
         '
         Me.Save.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.Save.Location = New System.Drawing.Point(329, 148)
+        Me.Save.Location = New System.Drawing.Point(329, 261)
         Me.Save.Name = "Save"
         Me.Save.Size = New System.Drawing.Size(75, 23)
         Me.Save.TabIndex = 13
@@ -206,8 +216,9 @@ Partial Class Configure
         '
         'Label6
         '
+        Me.Label6.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(9, 158)
+        Me.Label6.Location = New System.Drawing.Point(9, 271)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(99, 13)
         Me.Label6.TabIndex = 15
@@ -243,11 +254,100 @@ Partial Class Configure
         Me.TrayMenuExit.Size = New System.Drawing.Size(127, 22)
         Me.TrayMenuExit.Text = "Exit"
         '
+        'CheckBox_startWithWindows
+        '
+        Me.CheckBox_startWithWindows.AutoSize = True
+        Me.CheckBox_startWithWindows.Location = New System.Drawing.Point(13, 59)
+        Me.CheckBox_startWithWindows.Name = "CheckBox_startWithWindows"
+        Me.CheckBox_startWithWindows.Size = New System.Drawing.Size(117, 17)
+        Me.CheckBox_startWithWindows.TabIndex = 16
+        Me.CheckBox_startWithWindows.Text = "Start with Windows"
+        Me.CheckBox_startWithWindows.UseVisualStyleBackColor = True
+        '
+        'GroupBox2
+        '
+        Me.GroupBox2.Controls.Add(Me.CheckBox_startHidden)
+        Me.GroupBox2.Controls.Add(Me.Label7)
+        Me.GroupBox2.Controls.Add(Me.Label21)
+        Me.GroupBox2.Controls.Add(Me.Label19)
+        Me.GroupBox2.Controls.Add(Me.ComboBox_Key)
+        Me.GroupBox2.Controls.Add(Me.ComboBox_Modifier)
+        Me.GroupBox2.Controls.Add(Me.CheckBox_startWithWindows)
+        Me.GroupBox2.Location = New System.Drawing.Point(12, 145)
+        Me.GroupBox2.Name = "GroupBox2"
+        Me.GroupBox2.Size = New System.Drawing.Size(392, 108)
+        Me.GroupBox2.TabIndex = 17
+        Me.GroupBox2.TabStop = False
+        Me.GroupBox2.Text = "App Settings"
+        '
+        'ComboBox_Key
+        '
+        Me.ComboBox_Key.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox_Key.FormattingEnabled = True
+        Me.ComboBox_Key.Items.AddRange(New Object() {"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"})
+        Me.ComboBox_Key.Location = New System.Drawing.Point(157, 32)
+        Me.ComboBox_Key.Name = "ComboBox_Key"
+        Me.ComboBox_Key.Size = New System.Drawing.Size(97, 21)
+        Me.ComboBox_Key.TabIndex = 24
+        '
+        'ComboBox_Modifier
+        '
+        Me.ComboBox_Modifier.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox_Modifier.FormattingEnabled = True
+        Me.ComboBox_Modifier.Items.AddRange(New Object() {"None", "Alt", "Ctrl", "Shift"})
+        Me.ComboBox_Modifier.Location = New System.Drawing.Point(282, 32)
+        Me.ComboBox_Modifier.Name = "ComboBox_Modifier"
+        Me.ComboBox_Modifier.Size = New System.Drawing.Size(97, 21)
+        Me.ComboBox_Modifier.TabIndex = 23
+        '
+        'Label21
+        '
+        Me.Label21.AutoSize = True
+        Me.Label21.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.Label21.Location = New System.Drawing.Point(154, 16)
+        Me.Label21.Name = "Label21"
+        Me.Label21.Size = New System.Drawing.Size(25, 13)
+        Me.Label21.TabIndex = 26
+        Me.Label21.Text = "Key"
+        '
+        'Label19
+        '
+        Me.Label19.AutoSize = True
+        Me.Label19.ForeColor = System.Drawing.SystemColors.WindowText
+        Me.Label19.Location = New System.Drawing.Point(279, 16)
+        Me.Label19.Name = "Label19"
+        Me.Label19.Size = New System.Drawing.Size(44, 13)
+        Me.Label19.TabIndex = 25
+        Me.Label19.Text = "Modifier"
+        '
+        'Label7
+        '
+        Me.Label7.AutoSize = True
+        Me.Label7.Location = New System.Drawing.Point(10, 35)
+        Me.Label7.Name = "Label7"
+        Me.Label7.Size = New System.Drawing.Size(113, 13)
+        Me.Label7.TabIndex = 27
+        Me.Label7.Text = "Toggle Reticle Hotkey"
+        '
+        'CheckBox_startHidden
+        '
+        Me.CheckBox_startHidden.AutoSize = True
+        Me.CheckBox_startHidden.Location = New System.Drawing.Point(13, 82)
+        Me.CheckBox_startHidden.Name = "CheckBox_startHidden"
+        Me.CheckBox_startHidden.Size = New System.Drawing.Size(85, 17)
+        Me.CheckBox_startHidden.TabIndex = 28
+        Me.CheckBox_startHidden.Text = "Start Hidden"
+        Me.CheckBox_startHidden.UseVisualStyleBackColor = True
+        '
+        'Timer_Restart
+        '
+        '
         'Configure
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(417, 183)
+        Me.ClientSize = New System.Drawing.Size(417, 296)
+        Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.Label6)
         Me.Controls.Add(Me.Cancel)
         Me.Controls.Add(Me.Save)
@@ -257,10 +357,11 @@ Partial Class Configure
         Me.Controls.Add(Me.ReticlePreview)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.MaximizeBox = False
-        Me.MaximumSize = New System.Drawing.Size(433, 222)
+        Me.MaximumSize = New System.Drawing.Size(433, 335)
         Me.MinimizeBox = False
-        Me.MinimumSize = New System.Drawing.Size(433, 222)
+        Me.MinimumSize = New System.Drawing.Size(433, 335)
         Me.Name = "Configure"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen
         Me.Text = "Configure Reticle"
         Me.TopMost = True
         Me.TransparencyKey = System.Drawing.SystemColors.ControlDark
@@ -272,6 +373,8 @@ Partial Class Configure
         CType(Me.Green, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ReticlePreview, System.ComponentModel.ISupportInitialize).EndInit()
         Me.TrayMenu.ResumeLayout(False)
+        Me.GroupBox2.ResumeLayout(False)
+        Me.GroupBox2.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -299,4 +402,13 @@ Partial Class Configure
     Friend WithEvents ToolStripSeparator1 As ToolStripSeparator
     Friend WithEvents TrayMenuExit As ToolStripMenuItem
     Friend WithEvents DropShadow As CheckBox
+    Friend WithEvents CheckBox_startWithWindows As CheckBox
+    Friend WithEvents GroupBox2 As GroupBox
+    Friend WithEvents ComboBox_Key As ComboBox
+    Friend WithEvents ComboBox_Modifier As ComboBox
+    Friend WithEvents Label7 As Label
+    Friend WithEvents Label21 As Label
+    Friend WithEvents Label19 As Label
+    Friend WithEvents CheckBox_startHidden As CheckBox
+    Friend WithEvents Timer_Restart As Timer
 End Class

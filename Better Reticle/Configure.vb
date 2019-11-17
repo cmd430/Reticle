@@ -1,6 +1,9 @@
-﻿Imports System.Drawing.Imaging
+﻿Imports System.ComponentModel
+Imports System.Drawing.Imaging
 Imports System.IO
 Imports System.Runtime.InteropServices
+Imports Microsoft.Win32
+Imports Microsoft.Win32.Registry
 
 Public Class Configure
 
@@ -13,13 +16,20 @@ Public Class Configure
     Private Const WS_EX_TOOLWINDOW As Integer = &H80
     Private Const WS_EX_APPWINDOW As Integer = &H40000
     Private Const WS_EX_TRANSPARENT As Integer = &H20
-    Private Const SWP_NOACTIVATE As UInteger = &H10
-    Private Const SWP_NOMOVE As UInteger = &H2
-    Private Const SWP_NOSIZE As UInteger = &H1
+
+    <FlagsAttribute>
+    Public Enum ModifierKey As Long
+        None = 0
+        Alt = 1
+        Control = 2
+        Shift = 4
+        Win = 8
+    End Enum
 
     Private Reticle_Form As Reticle
     Private Reticle_Bitmap As Bitmap
     Private Reticle_Style As String
+    Private AppHotkeys As New Hotkeys
     Private Settings As String
 
     Private Sub Configure_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -39,22 +49,72 @@ Public Class Configure
         For Each ReticleImg In ReticleArr
             ReticleStyle.Items.Add(Path.GetFileNameWithoutExtension(ReticleImg.Name))
         Next
+
+        AddHandler AppHotkeys.KeyPressed, Sub()
+                                              If Reticle_Form.Visible And Me.Visible = False Then
+                                                  Reticle_Form.Hide()
+                                              Else
+                                                  Reticle_Form.Show()
+                                              End If
+                                          End Sub
+        AppHotkeys.RegisterHotKey(ReadINI(Settings, "Settings", "hotkey-modifier", ModifierKey.None), ReadINI(Settings, "Settings", "hotkey-key", Keys.F3))
+
+        ComboBox_Key.SelectedIndex = ReadINI(Settings, "Settings", "hotkey-key", 114) - 112
+        ComboBox_Modifier.SelectedIndex = ReadINI(Settings, "Settings", "hotkey-modifier", 0)
+        CheckBox_startHidden.Checked = ReadINI(Settings, "Settings", "start-hidden", False)
+
         Red.Value = ReadINI(Settings, "Reticle-Settings", "red", 0)
         Green.Value = ReadINI(Settings, "Reticle-Settings", "green", 0)
         Blue.Value = ReadINI(Settings, "Reticle-Settings", "blue", 0)
         Alpha.Value = ReadINI(Settings, "Reticle-Settings", "alpha", 255)
         DropShadow.Checked = ReadINI(Settings, "Reticle-Settings", "drop-shadow", True)
         ReticleStyle.SelectedItem = ReadINI(Settings, "Reticle-Settings", "reticle", "").Replace(".png", "")
+
+        If LoadWithWindows() Then
+            CheckBox_startWithWindows.Checked = True
+        End If
+        AddHandler CheckBox_startWithWindows.CheckedChanged, AddressOf CheckBox_startWithWindows_CheckedChanged
+
         Reticle_Form = New Reticle With {
             .Width = 100,
             .Height = 100,
             .TopMost = True,
             .ShowInTaskbar = False
         }
-        Reticle_Form.Show()
+        If Not CheckBox_startHidden.Checked Then
+            Reticle_Form.Show()
+        End If
         SetWindowLong(Reticle_Form.Handle, GWL_EXSTYLE, (GetWindowLong(Me.Handle, GWL_EXSTYLE) Or WS_EX_TOOLWINDOW Or WS_EX_TRANSPARENT) And Not WS_EX_APPWINDOW)
         Reticle_Style = ReadINI(Settings, "Settings", "reticle-dir", Application.StartupPath) & "\" & ReticleStyle.SelectedItem & ".png"
         SetReticle()
+    End Sub
+
+    Public Function LoadWithWindows() As Boolean
+        Dim key As RegistryKey = CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
+        If key Is Nothing Then
+            Return False
+        End If
+
+        Dim value As Object = key.GetValue(Process.GetCurrentProcess().MainModule.FileName)
+        If TypeOf value Is String Then
+            Return value.StartsWith("""" & Application.ExecutablePath & """")
+        End If
+
+        Return False
+    End Function
+
+    Private Sub CheckBox_startWithWindows_CheckedChanged(sender As Object, e As EventArgs)
+        RemoveHandler CheckBox_startWithWindows.CheckedChanged, AddressOf CheckBox_startWithWindows_CheckedChanged
+        If LoadWithWindows() Then
+            Dim key As RegistryKey = CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
+            key.DeleteValue(Process.GetCurrentProcess().MainModule.FileName, False)
+            CheckBox_startWithWindows.Checked = False
+        Else
+            Dim key As RegistryKey = CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
+            key.SetValue(Process.GetCurrentProcess().MainModule.FileName, """" & Application.ExecutablePath & """")
+            CheckBox_startWithWindows.Checked = True
+        End If
+        AddHandler CheckBox_startWithWindows.CheckedChanged, AddressOf CheckBox_startWithWindows_CheckedChanged
     End Sub
 
     Private Sub Configure_Move(sender As Object, e As EventArgs) Handles Me.Move
@@ -167,11 +227,16 @@ Public Class Configure
         WriteINI(Settings, "Reticle-Settings", "blue", Blue.Value)
         WriteINI(Settings, "Reticle-Settings", "alpha", Alpha.Value)
         WriteINI(Settings, "Reticle-Settings", "drop-shadow", DropShadow.Checked)
-        Application.Restart()
+        WriteINI(Settings, "Settings", "hotkey-key", ComboBox_Key.SelectedIndex + 112)
+        WriteINI(Settings, "Settings", "hotkey-modifier", ComboBox_Modifier.SelectedIndex)
+        WriteINI(Settings, "Settings", "start-hidden", CheckBox_startHidden.Checked)
+        Me.Hide()
+        Timer_Restart.Enabled = True
     End Sub
 
     Private Sub Cancel_Click(sender As Object, e As EventArgs) Handles Cancel.Click
-        Application.Restart()
+        Me.Hide()
+        Timer_Restart.Enabled = True
     End Sub
 
     Private Sub TrayMenuExit_Click(sender As Object, e As EventArgs) Handles TrayMenuExit.Click
@@ -180,12 +245,23 @@ Public Class Configure
 
     Private Sub TrayMenuConfigure_Click(sender As Object, e As EventArgs) Handles TrayMenuConfigure.Click
         Me.Show()
+        If Reticle_Form.Visible = False Then
+            Reticle_Form.Show()
+        End If
         Reticle_Form.Location = New Point(Me.Location.X + 20, Me.Location.Y + 43)
+    End Sub
+
+    Private Sub Timer_Restart_Tick(sender As Object, e As EventArgs) Handles Timer_Restart.Tick
+        Process.Start(Application.ExecutablePath)
+        Application.Exit()
+    End Sub
+
+    Private Sub Configure_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+        AppHotkeys.Dispose()
     End Sub
 
 End Class
 
 Class Reticle
     Inherits PerPixelAlphaForm
-
 End Class
