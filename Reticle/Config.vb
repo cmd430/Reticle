@@ -62,7 +62,7 @@ Public Class Config
     End Sub
 
     Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
-        If ColorDialog1.ShowDialog() = Windows.Forms.DialogResult.OK Then
+        If ColorDialog1.ShowDialog() = DialogResult.OK Then
             If ColorDialog1.Color = Color.Yellow Then
                 MsgBox("That Shade of Yellow is Not Allowed Sorry!")
                 Red.Value = 0

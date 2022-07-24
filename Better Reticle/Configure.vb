@@ -1,9 +1,8 @@
 ﻿Imports System.ComponentModel
 Imports System.Drawing.Imaging
 Imports System.IO
+Imports System.Reflection
 Imports System.Runtime.InteropServices
-Imports Microsoft.Win32
-Imports Microsoft.Win32.Registry
 
 Public Class Configure
 
@@ -31,19 +30,22 @@ Public Class Configure
     Private Reticle_Style As String
     Private AppHotkeys As New Hotkeys
     Private Settings As String
+    Private TaskSchedeuler As New Scheduler("Better Reticle", "cmd430", "Starts Better Reticle on Logon", Nothing, Nothing, False)
 
     Private Sub Configure_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        Directory.SetCurrentDirectory(Path.GetDirectoryName(Application.ExecutablePath))
+
         Try
-            Settings = Application.StartupPath & "\Data\Config.ini"
+            Settings = Path.GetDirectoryName(Application.ExecutablePath) & "\Data\Config.ini"
         Catch ex As Exception
             Try
-                Settings = Application.StartupPath & "\" & Process.GetCurrentProcess().MainModule.FileName.Replace(".exe", "") & ".ini"
+                Settings = Application.ExecutablePath.Replace(".exe", ".ini")
             Catch ex2 As Exception
                 MessageBox.Show(Me, "Error Loading Config!", "Failed to load config", MessageBoxButtons.OK, MessageBoxIcon.[Error])
                 Application.Exit()
             End Try
         End Try
-        Dim ReticleDir As New DirectoryInfo(ReadINI(Settings, "Settings", "reticle-dir", Application.StartupPath))
+        Dim ReticleDir As New DirectoryInfo(ReadINI(Settings, "Settings", "reticle-dir", Path.GetDirectoryName(Application.ExecutablePath)))
         Dim ReticleArr As FileInfo() = ReticleDir.GetFiles("*.png")
         Dim ReticleImg As FileInfo
         For Each ReticleImg In ReticleArr
@@ -70,6 +72,12 @@ Public Class Configure
         DropShadow.Checked = ReadINI(Settings, "Reticle-Settings", "drop-shadow", True)
         ReticleStyle.SelectedItem = ReadINI(Settings, "Reticle-Settings", "reticle", "").Replace(".png", "")
 
+        If TaskSchedeuler.GetTask() Is Nothing Then
+            TaskSchedeuler.AddTask()
+        Else
+            TaskSchedeuler.UpdateTask()
+        End If
+
         If LoadWithWindows() Then
             CheckBox_startWithWindows.Checked = True
         End If
@@ -85,33 +93,21 @@ Public Class Configure
             Reticle_Form.Show()
         End If
         SetWindowLong(Reticle_Form.Handle, GWL_EXSTYLE, (GetWindowLong(Me.Handle, GWL_EXSTYLE) Or WS_EX_TOOLWINDOW Or WS_EX_TRANSPARENT) And Not WS_EX_APPWINDOW)
-        Reticle_Style = ReadINI(Settings, "Settings", "reticle-dir", Application.StartupPath) & "\" & ReticleStyle.SelectedItem & ".png"
+        Reticle_Style = ReadINI(Settings, "Settings", "reticle-dir", Path.GetDirectoryName(Application.ExecutablePath)) & "\" & ReticleStyle.SelectedItem & ".png"
         SetReticle()
     End Sub
 
     Public Function LoadWithWindows() As Boolean
-        Dim key As RegistryKey = CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
-        If key Is Nothing Then
-            Return False
-        End If
-
-        Dim value As Object = key.GetValue(Process.GetCurrentProcess().MainModule.FileName)
-        If TypeOf value Is String Then
-            Return value.StartsWith("""" & Application.ExecutablePath & """")
-        End If
-
-        Return False
+        Return TaskSchedeuler.GetTask().Enabled
     End Function
 
     Private Sub CheckBox_startWithWindows_CheckedChanged(sender As Object, e As EventArgs)
         RemoveHandler CheckBox_startWithWindows.CheckedChanged, AddressOf CheckBox_startWithWindows_CheckedChanged
         If LoadWithWindows() Then
-            Dim key As RegistryKey = CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
-            key.DeleteValue(Process.GetCurrentProcess().MainModule.FileName, False)
+            TaskSchedeuler.ToggleTask()
             CheckBox_startWithWindows.Checked = False
         Else
-            Dim key As RegistryKey = CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
-            key.SetValue(Process.GetCurrentProcess().MainModule.FileName, """" & Application.ExecutablePath & """")
+            TaskSchedeuler.ToggleTask()
             CheckBox_startWithWindows.Checked = True
         End If
         AddHandler CheckBox_startWithWindows.CheckedChanged, AddressOf CheckBox_startWithWindows_CheckedChanged
@@ -215,7 +211,7 @@ Public Class Configure
 
     Private Sub ReticleStyle_SelectedIndexChanged(sender As Object, e As EventArgs) Handles ReticleStyle.SelectedIndexChanged
         If Reticle_Form IsNot Nothing Then
-            Reticle_Style = (ReadINI(Settings, "Settings", "reticle-dir", Application.StartupPath) & "\" & ReticleStyle.SelectedItem & ".png")
+            Reticle_Style = (ReadINI(Settings, "Settings", "reticle-dir", Path.GetDirectoryName(Application.ExecutablePath)) & "\" & ReticleStyle.SelectedItem & ".png")
             SetReticle()
         End If
     End Sub
@@ -243,7 +239,7 @@ Public Class Configure
         Application.Exit()
     End Sub
 
-    Private Sub TrayMenuConfigure_Click(sender As Object, e As EventArgs) Handles TrayMenuConfigure.Click
+    Private Sub TrayMenuConfigure_Click(sender As Object, e As EventArgs) Handles TrayMenuConfigure.Click, TrayIcon.DoubleClick
         Me.Show()
         If Reticle_Form.Visible = False Then
             Reticle_Form.Show()
