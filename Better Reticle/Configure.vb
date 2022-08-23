@@ -15,6 +15,7 @@ Public Class Configure
     Private Const WS_EX_TOOLWINDOW As Integer = &H80
     Private Const WS_EX_APPWINDOW As Integer = &H40000
     Private Const WS_EX_TRANSPARENT As Integer = &H20
+    Private Const WS_EX_NOACTIVATE As Integer = &H8000000
 
     <FlagsAttribute>
     Public Enum ModifierKey As Long
@@ -92,7 +93,7 @@ Public Class Configure
         If Not CheckBox_startHidden.Checked Then
             Reticle_Form.Show()
         End If
-        SetWindowLong(Reticle_Form.Handle, GWL_EXSTYLE, (GetWindowLong(Me.Handle, GWL_EXSTYLE) Or WS_EX_TOOLWINDOW Or WS_EX_TRANSPARENT) And Not WS_EX_APPWINDOW)
+        SetWindowLong(Reticle_Form.Handle, GWL_EXSTYLE, (GetWindowLong(Me.Handle, GWL_EXSTYLE) Or WS_EX_TOOLWINDOW Or WS_EX_TRANSPARENT Or WS_EX_NOACTIVATE) And Not WS_EX_APPWINDOW)
         Reticle_Style = ReadINI(Settings, "Settings", "reticle-dir", Path.GetDirectoryName(Application.ExecutablePath)) & "\" & ReticleStyle.SelectedItem & ".png"
         SetReticle()
     End Sub
@@ -260,4 +261,11 @@ End Class
 
 Class Reticle
     Inherits PerPixelAlphaForm
+
+    Protected Overrides ReadOnly Property ShowWithoutActivation() As Boolean
+        Get
+            Return True
+        End Get
+    End Property
+
 End Class
